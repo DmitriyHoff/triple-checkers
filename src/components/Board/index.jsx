@@ -8,7 +8,6 @@ export default function Board() {
   let [radius, setRadius] = useState(180);
   let [midRadiusZoom, setMidRadiusZoom] = useState(1);
   let [points, setPoints] = useState([]);
-  // let [midpoints, setMidpoints] = useState([]);
 
   function fromPoint(point) {
     return { left: point.x + "px", top: point.y + "px" };
@@ -67,9 +66,6 @@ export default function Board() {
            res.push(sr);
         }
       }
-      //res.push(...lineX)
-      //console.log({res})
-      // res.push(m1, p, m2);
     }
     console.log({ res });
     return res;
@@ -83,7 +79,6 @@ export default function Board() {
   return (
     <>
       <div className={styles["board-wrapper"]}>
-        {/* <div className={styles.point} style={{ ...fromPoint(center) }}></div> */}
         {points.map((p) => (
           <div
             className={styles.point}
