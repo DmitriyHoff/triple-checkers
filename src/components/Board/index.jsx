@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import Slider from 'rsuite/Slider';
-import 'rsuite/Slider/styles/index.css';
+import Slider from "rsuite/Slider";
+import "rsuite/Slider/styles/index.css";
 import styles from "./styles.module.css";
 
 export default function Board() {
@@ -8,6 +8,7 @@ export default function Board() {
   let [radius, setRadius] = useState(180);
   let [midRadiusZoom, setMidRadiusZoom] = useState(1);
   let [points, setPoints] = useState([]);
+  let [polygons, setPolygons] = useState([]);
 
   function fromPoint(point) {
     return { left: point.x + "px", top: point.y + "px" };
@@ -40,10 +41,11 @@ export default function Board() {
   }
 
   function getPoints() {
-    let midRadius = Math.sqrt(radius ** 2 - (0.5 * radius) ** 2) * midRadiusZoom;
-    
-    const res = [];
+    let midRadius =
+      Math.sqrt(radius ** 2 - (0.5 * radius) ** 2) * midRadiusZoom;
 
+    const res = [];
+    let pointsArray = [];
     // для каждого сектора
     for (let i = 0; i < 6; i++) {
       let m1 = { x: center.x, y: center.y - midRadius };
@@ -56,24 +58,63 @@ export default function Board() {
       m2 = rotate(m2, deg + 60);
 
       const countN = 4;
-  
-      for (let n = 0; n <= countN; n++) {
-        let c_m1 = n == countN ? m1 : getRatioDividePoint(center, m1, n / (countN - n));
-        let m2_p = n == countN ? p : getRatioDividePoint(m2, p, n / (countN - n));
 
+      let segment = [];
+      for (let n = 0; n <= countN; n++) {
+        let c_m1 =
+          n == countN ? m1 : getRatioDividePoint(center, m1, n / (countN - n));
+        let m2_p =
+          n == countN ? p : getRatioDividePoint(m2, p, n / (countN - n));
+
+        let row = [];
         for (let m = 0; m <= countN; m++) {
-           let sr = m == countN ? m2_p : getRatioDividePoint(c_m1, m2_p, m / (countN - m));
-           res.push(sr);
+          let sr =
+            m == countN
+              ? m2_p
+              : getRatioDividePoint(c_m1, m2_p, m / (countN - m));
+          res.push(sr);
+          row.push(sr);
+        }
+        segment.push(row);
+      }
+      pointsArray.push(segment);
+    }
+
+    return pointsArray;
+  }
+
+  function getPolygons(points) {
+    const polygons = [];
+    let fillIndex = 0;
+    for (let s = 0; s < points.length; s++) {
+      fillIndex++;
+      for (let i = 0; i < points[s].length - 1; i++) {
+        fillIndex++;
+        for (let j = 0; j < points[s][i].length - 1; j++) {
+          fillIndex++;
+          let polygonPoints = [
+            points[s][i][j],
+            points[s][i + 1][j],
+            points[s][i + 1][j + 1],
+            points[s][i][j + 1],
+          ];
+          let polygon = {
+            points: polygonPoints.map((el) => `${el.x},${el.y}`),
+            fill: fillIndex % 2 === 0 ? "black" : "none",
+          };
+          polygons.push(polygon);
         }
       }
     }
-    console.log({ res });
-    return res;
+    return polygons;
   }
-
   useEffect(() => {
     console.log("Effect hook.");
-    setPoints(getPoints());
+    let points = getPoints();
+    let polygons = getPolygons(points);
+    setPoints(points.flat(2));
+
+    setPolygons(polygons);
   }, [center, radius, midRadiusZoom]);
 
   return (
@@ -87,23 +128,33 @@ export default function Board() {
           />
         ))}
       </div>
+      <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+        {polygons.map((p) => (
+          <polygon
+            points={p.points}
+            key={polygons.indexOf(p)}
+            stroke="black"
+            fill={p.fill}
+          />
+        ))}
+      </svg>
       <Slider
-          progress
-          style={{ marginTop: 16 }}
-          min={100}
-          max={190}
-          value={radius}
-          onChange={(value) => setRadius(value)}
-        />
-        <Slider
-          progress
-          style={{ marginTop: 16 }}
-          min={0.8}
-          max={1.1}
-          step={0.02}
-          value={midRadiusZoom}
-          onChange={(value) => setMidRadiusZoom(value)}
-        />
+        progress
+        style={{ marginTop: 16 }}
+        min={100}
+        max={190}
+        value={radius}
+        onChange={(value) => setRadius(value)}
+      />
+      <Slider
+        progress
+        style={{ marginTop: 16 }}
+        min={0.8}
+        max={1.1}
+        step={0.02}
+        value={midRadiusZoom}
+        onChange={(value) => setMidRadiusZoom(value)}
+      />
     </>
   );
 }
