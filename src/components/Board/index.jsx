@@ -86,6 +86,7 @@ export default function Board() {
   function getPolygons(points) {
     const polygons = [];
     let fillIndex = 0;
+    let id = 0;
     for (let s = 0; s < points.length; s++) {
       fillIndex++;
       for (let i = 0; i < points[s].length - 1; i++) {
@@ -101,6 +102,7 @@ export default function Board() {
           let polygon = {
             points: polygonPoints.map((el) => `${el.x},${el.y}`),
             fill: fillIndex % 2 === 0 ? "black" : "none",
+            id: "polygon_" + id++,
           };
           polygons.push(polygon);
         }
@@ -117,27 +119,39 @@ export default function Board() {
     setPolygons(polygons);
   }, [center, radius, midRadiusZoom]);
 
+  const handleMouseEnter = (e) => {
+    e.target.fill = "grey";
+    console.log(e.target.fill);
+    console.log("mouseEnter");
+  };
+  const handleMouseLeave = (e) => {
+    e.target.fill = "maroon";
+  };
   return (
     <>
       <div className={styles["board-wrapper"]}>
-        {points.map((p) => (
-          <div
-            className={styles.point}
-            style={{ ...fromPoint(p) }}
-            key={points.indexOf(p)}
-          />
-        ))}
+
+        <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+          {polygons.map((p) => (
+            <polygon
+              id={p.id}
+              className={[
+                styles.polygon,
+                p.fill === "black"
+                  ? styles["polygon-black"]
+                  : styles["polygon-white"],
+              ].join(" ")}
+              points={p.points}
+              key={polygons.indexOf(p)}
+              stroke="black"
+              // fill={p.fill}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+            />
+          ))}
+        </svg>
       </div>
-      <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
-        {polygons.map((p) => (
-          <polygon
-            points={p.points}
-            key={polygons.indexOf(p)}
-            stroke="black"
-            fill={p.fill}
-          />
-        ))}
-      </svg>
+
       <Slider
         progress
         style={{ marginTop: 16 }}
