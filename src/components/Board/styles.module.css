@@ -29,15 +29,23 @@
 }
 
 .polygon:hover {
-    fill:chartreuse
+    fill:chartreuse;
+    cursor: pointer;
 }
 .polygon:active {
     fill:darkgreen
 }
 .polygon-black {
-    fill: black;
+    fill: #333;
 }
 
 .polygon-white {
     fill: wheat;
+}
+
+.piece {
+    pointer-events: none;
+    fill: blanchedalmond;
+    box-shadow: inset 0 0 10px black;
+    stroke: #ccc;
 }
