@@ -9,6 +9,7 @@ export default function Board() {
   let [midRadiusZoom, setMidRadiusZoom] = useState(1);
   let [points, setPoints] = useState([]);
   let [polygons, setPolygons] = useState([]);
+  let [pieceRadius, setPieceRadius] = useState(10)
 
   function fromPoint(point) {
     return { left: point.x + "px", top: point.y + "px" };
@@ -99,16 +100,49 @@ export default function Board() {
             points[s][i + 1][j + 1],
             points[s][i][j + 1],
           ];
+
+          let initialValue = {x: 0, y: 0}
+          let pointsSum = polygonPoints.reduce(
+            (sum, point) => ({ x: sum.x + point.x, y: sum.y + point.y}),
+            initialValue);
+
+          let center = {x: pointsSum.x/4, y: pointsSum.y/4}
+
+          let minRadius = Infinity;
+
+          for (let i = 0; i < polygonPoints.length; i++) {
+            const next = i === polygonPoints.length - 1 ? 0 : i + 1;
+            const midpoint = getRatioDividePoint(polygonPoints[i], polygonPoints[next], 1)
+            
+            let dist = getDistanse(midpoint, center)
+            if(dist < minRadius) minRadius = dist;
+
+          }
           let polygon = {
             points: polygonPoints.map((el) => `${el.x},${el.y}`),
             fill: fillIndex % 2 === 0 ? "black" : "none",
             id: "polygon_" + id++,
+            center,
+            minRadius
           };
+          //console.log(polygon)
           polygons.push(polygon);
         }
       }
     }
+    const minRadius = Math.min(...(polygons.map(el => el.minRadius))) * 0.8
+    setPieceRadius(minRadius);
     return polygons;
+  }
+
+  /**
+   * Возвращает расстояние между точками
+   * @param {*} point1 
+   * @param {*} point2 
+   * @returns 
+   */
+  function getDistanse(point1, point2) {
+    return Math.sqrt((point1.x - point2.x) ** 2 + (point1.y - point2.y) ** 2);
   }
   useEffect(() => {
     console.log("Effect hook.");
@@ -117,7 +151,7 @@ export default function Board() {
     setPoints(points.flat(2));
 
     setPolygons(polygons);
-  }, [center, radius, midRadiusZoom]);
+  }, [center, radius, midRadiusZoom, pieceRadius]);
 
   const handleMouseEnter = (e) => {
     e.target.fill = "grey";
@@ -149,6 +183,9 @@ export default function Board() {
               onMouseLeave={handleMouseLeave}
             />
           ))}
+          {polygons.filter((p)=> p.fill === 'black').map ((p) => (
+            <circle className={styles.piece} cx={p.center.x} cy={p.center.y} r={pieceRadius} key={polygons.indexOf(p)} />
+          ))}
         </svg>
       </div>
 
@@ -165,7 +202,7 @@ export default function Board() {
         style={{ marginTop: 16 }}
         min={0.8}
         max={1.1}
-        step={0.02}
+        step={0.01}
         value={midRadiusZoom}
         onChange={(value) => setMidRadiusZoom(value)}
       />
