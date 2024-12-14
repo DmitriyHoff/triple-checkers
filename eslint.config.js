@@ -3,7 +3,7 @@ import globals from 'globals'
 import react from 'eslint-plugin-react'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
-
+import eslintPluginTSDoc from "eslint-plugin-tsdoc"
 export default [
   { ignores: ['dist'] },
   {
@@ -22,6 +22,7 @@ export default [
       react,
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
+      'eslint-plugin-tsdoc': eslintPluginTSDoc
     },
     rules: {
       ...js.configs.recommended.rules,
@@ -33,6 +34,11 @@ export default [
         'warn',
         { allowConstantExport: true },
       ],
+      
     },
+    extends: [
+        "eslint:recommended",
+        "plugin:react/recommended"
+      ],
   },
 ]

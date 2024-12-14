@@ -28,6 +28,7 @@
     transition: all 0.1s ease-in-out;
 }
 
+
 .polygon:hover {
     fill:chartreuse;
     cursor: pointer;
@@ -43,9 +44,27 @@
     fill: wheat;
 }
 
+.polygon--selected {
+    fill: cyan;
+}
 .piece {
     pointer-events: none;
-    fill: blanchedalmond;
     box-shadow: inset 0 0 10px black;
     stroke: #ccc;
+}
+
+.piece--active {
+    /* transform: scale(1.1); */
+}
+
+.piece-p1 {
+    fill: blanchedalmond;
+}
+
+.piece-p2 {
+    fill: steelblue;
+}
+
+.piece-p3 {
+    fill: palevioletred;
 }
